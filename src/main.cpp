@@ -4,7 +4,7 @@
 #include "rmt_uart.h"
 #include <NeoPixelBus.h>
 
-#define BUTTON_DEBOUCE  500
+#define BUTTON_DEBOUCE  200
 
 NeoPixelBus<NeoGrbFeature, NeoEsp32I2s1X8Ws2812xMethod> rgb(1, 13);
 
