@@ -7,6 +7,8 @@
 
 #define EEPROM_SIZE 1
 
+#define BUTTON_DEBOUCE  200
+
 NeoPixelBus<NeoGrbFeature, NeoEsp32I2s1X8Ws2812xMethod> rgb(1, 13);
 
 #if defined(CONFIG_IDF_TARGET_ESP32S3)
@@ -23,9 +25,14 @@ uint8_t bufPos[NUM_PORTS] = {0};
 File file;
 char filename[12]={0};
 bool button_pressed = false;
+uint32_t buttonLastPressed = 0;
 
 void pressed() {
-  button_pressed = true;
+  uint32_t now = millis();
+  if (BUTTON_DEBOUCE < now - buttonLastPressed) {
+    button_pressed = true;
+    buttonLastPressed = now;
+  }
 }
 
 __attribute__((unused)) void setup() {
