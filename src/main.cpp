@@ -3,6 +3,9 @@
 #include <FS.h>
 #include "rmt_uart.h"
 #include <NeoPixelBus.h>
+#include <EEPROM.h>
+
+#define EEPROM_SIZE 1
 
 NeoPixelBus<NeoGrbFeature, NeoEsp32I2s1X8Ws2812xMethod> rgb(1, 13);
 
@@ -14,9 +17,11 @@ NeoPixelBus<NeoGrbFeature, NeoEsp32I2s1X8Ws2812xMethod> rgb(1, 13);
 #define RMT_START 2
 #endif
 
+uint8_t logNumber;
 uint8_t buf[NUM_PORTS][80];
 uint8_t bufPos[NUM_PORTS] = {0};
 File file;
+char filename[12]={0};
 bool button_pressed = false;
 
 void pressed() {
@@ -28,6 +33,7 @@ __attribute__((unused)) void setup() {
   pinMode(0, INPUT);
   attachInterrupt(0, pressed, FALLING);
 
+  EEPROM.begin(EEPROM_SIZE);
   Serial.begin(921600);
   Serial.println("Starting...");
   Serial.flush();
@@ -38,6 +44,7 @@ __attribute__((unused)) void setup() {
 }
 
 static void writeBuffer(const int port) {
+  Serial.print(".");
   file.write('1' + port);
   file.write(',');
   file.write(buf[port], bufPos[port]);
@@ -69,10 +76,17 @@ bool openSDCard() {
     return false;
   }
 #endif
-  if (SD.exists("/log.csv")) {
-    SD.remove("/log.csv");
+ EEPROM.get(0, logNumber);
+ logNumber++;
+ EEPROM.put(0, logNumber);
+ EEPROM.commit();
+ 
+ sprintf(filename,"/log%03d.csv",logNumber);
+ File dataFile = SD.open (filename,FILE_WRITE);
+  if (SD.exists(filename)) {
+    SD.remove(filename);
   }
-  file = SD.open("/log.csv", FILE_WRITE, true);
+  file = SD.open(filename, FILE_WRITE, true);
   if (!file) {
     Serial.println("Could not open SD Card");
     return false;
@@ -132,7 +146,8 @@ void loop() {
         Serial.println("Could not open SD Card");
         rgb.SetPixelColor(0, RgbColor(64, 0, 0));
       } else {
-        Serial.println("Started logging");
+        Serial.print("Started ");
+        Serial.println(filename);
         rgb.SetPixelColor(0, RgbColor(0, 64, 0));
         rgb.Show();
         startSerials();
