@@ -34,8 +34,11 @@ If there is a problem opening the SD card, the LED will flash red and return to 
 A log of information is written to the SD card as `/log000.csv`, each line in the CSV is a line read from a receiver prefixed
 with the port number (1-6).
 
-Receivers under test should be compiled with the `-DDEBUG_RCVR_SIGNAL_STATS` and `-DRCVR_UART_BAUD=460800` flags, and all but 1 should have telemetry
-disabled in the web UI. 
+Receivers under test should be compiled with the `-DRCVR_UART_BAUD=460800` flag and either of `-DDEBUG_RCVR_SIGNAL_STATS` or 
+`-DDEBUG_RCVR_LINKSTATS` flags, and all but one receiver should have telemetry disabled in the web UI using the
+"Force telemetry OFF on this receiver" option, as shown below.
+
+![Telemetry off](images/Telemetry%20off.png)
 
 There is debugging/operation information printed on the main USB connector at 921600 baud.
 
