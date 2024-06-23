@@ -87,7 +87,7 @@ bool openSDCard() {
  logNumber++;
  EEPROM.put(0, logNumber);
  EEPROM.commit();
- 
+
  sprintf(filename,"/log%03d.csv",logNumber);
  File dataFile = SD.open (filename,FILE_WRITE);
   if (SD.exists(filename)) {
@@ -126,13 +126,13 @@ void startSerials() {
   rmt_uart_init(RMT_UART_NUM_0, &config);
   pinMode(config.rx_io_num, INPUT_PULLUP);
   config.rx_io_num = GPIO_NUM_25;
-  rmt_uart_init(RMT_UART_NUM_1, &config);
-  pinMode(config.rx_io_num, INPUT_PULLUP);
-  config.rx_io_num = GPIO_NUM_33;
   rmt_uart_init(RMT_UART_NUM_2, &config);
   pinMode(config.rx_io_num, INPUT_PULLUP);
+  config.rx_io_num = GPIO_NUM_33;
+  rmt_uart_init(RMT_UART_NUM_4, &config);
+  pinMode(config.rx_io_num, INPUT_PULLUP);
   config.rx_io_num = GPIO_NUM_32;
-  rmt_uart_init(RMT_UART_NUM_3, &config);
+  rmt_uart_init(RMT_UART_NUM_6, &config);
   pinMode(config.rx_io_num, INPUT_PULLUP);
   Serial1.flush(false);
   Serial2.flush(false);
@@ -140,9 +140,9 @@ void startSerials() {
 
 void stopSerials() {
   rmt_uart_deinit(RMT_UART_NUM_0);
-  rmt_uart_deinit(RMT_UART_NUM_1);
   rmt_uart_deinit(RMT_UART_NUM_2);
-  rmt_uart_deinit(RMT_UART_NUM_3);
+  rmt_uart_deinit(RMT_UART_NUM_4);
+  rmt_uart_deinit(RMT_UART_NUM_6);
 }
 
 void loop() {
@@ -176,7 +176,7 @@ void loop() {
 #endif
 
   for (int uart = 0 ; uart<NUM_PORTS-RMT_START ; uart++) {
-    auto bytes = rmt_uart_read_bytes(RMT_UART_NUM_0 + uart, &buf[uart + RMT_START][bufPos[uart + RMT_START]], 0);
+    auto bytes = rmt_uart_read_bytes(RMT_UART_NUM_0 + uart * 2, &buf[uart + RMT_START][bufPos[uart + RMT_START]], 0);
     if (bytes) {
       int start = bufPos[uart+RMT_START];
       int end = start + bytes;
